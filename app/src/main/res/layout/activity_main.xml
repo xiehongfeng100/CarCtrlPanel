@@ -26,19 +26,55 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="60dp">
 
-        <EditText android:id="@+id/edit_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="@string/edit_text"/>
+        <!--<EditText android:id="@+id/edit_message"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:hint="@string/edit_text"/>-->
 
-        <Button android:id="@+id/send_message"
+        <Button android:id="@+id/runforward"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/send_button"
-            android:onClick="sendMsg"/>
+            android:text="@string/forward_button" />
+
+        <Button android:id="@+id/runbackward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/backward_button" />
+
+        <Button android:id="@+id/turnleft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/left_button" />
+
+        <Button android:id="@+id/turnright"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/right_button" />
+
 
     </LinearLayout>
 
+    <Button android:id="@+id/runstop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="150dp"
+        android:text="@string/stop_button" />
+
+    <!--<ImageView-->
+        <!--android:layout_width="80dp"-->
+        <!--android:layout_height="80dp"-->
+        <!--android:layout_marginTop="120dp"-->
+        <!--android:layout_marginLeft="100dp"-->
+        <!--android:src="@drawable/up"-->
+        <!--android:onClick="stop"/>-->
+
+    <!--<ImageView-->
+        <!--android:layout_width="80dp"-->
+        <!--android:layout_height="80dp"-->
+        <!--android:layout_marginTop="200dp"-->
+        <!--android:layout_marginLeft="100dp"-->
+        <!--android:src="@drawable/stop"-->
+        <!--android:onClick="stop"/>-->
 
     <!--<include layout="@layout/content_main" />-->
 
