@@ -5,13 +5,13 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -55,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
     // 04: turn right
     private static byte operType = 0x00;
 
+    // Echo log
+    private static TextView echoLog = null;
+    private static int logCount = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +71,9 @@ public class MainActivity extends AppCompatActivity {
         runBackwardBtn= (Button) findViewById(R.id.runbackward);
         turnLeftBtn = (Button) findViewById(R.id.turnleft);
         turnRightBtn = (Button) findViewById(R.id.turnright);
+
+        echoLog = (TextView) findViewById(R.id.echo_log);
+        echoLog.append("------ LogDog ------");
 
         runStopBtn.setOnClickListener(new View.OnClickListener() {
 
@@ -122,22 +129,13 @@ public class MainActivity extends AppCompatActivity {
 
             if (!isConnected)
             {
-//                try{
-//                    if(socket.isConnected()){
-//                        Log.i("", "Close Connection");
-//                        System.out.println("Close Connection");
-//                        socket.close();
-//                    }
-//                }catch (IOException e){
-//                    e.printStackTrace();
-//                }
-
                 try{
                     serAddr = InetAddress.getByName(SERVER_IP);
                     socket = new Socket(serAddr, SERVER_PORT);
                     if (socket.isConnected()) {
-                        Log.i("", "Connection Established");
-                        System.out.println("Connection Established");
+//                        Log.i("", "Connection Established.");
+                        System.out.println("Connection Established.");
+//                        echoLogFunc("Connection Established.");
                         isConnected = true;
 
                         DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
@@ -145,8 +143,9 @@ public class MainActivity extends AppCompatActivity {
                         dOut.flush();
 
                     } else {
-                        Log.i("", "Connection Failed!");
-                        System.out.println("Connection Failed");
+//                        Log.i("", "Connection Failed!!!");
+                        System.out.println("Connection Failed!!!");
+//                        echoLogFunc("Connection Faild!!!");
                         isConnected = false;
                     }
                 } catch (UnknownHostException e) {
@@ -167,22 +166,27 @@ public class MainActivity extends AppCompatActivity {
                             case 0x00:
                                 setRunStop();
                                 byteToWrite = runStop.serializedStream;
+//                                echoLogFunc("Stop.");
                                 break;
                             case 0x01:
                                 setRunForward();
                                 byteToWrite = runForward.serializedStream;
+//                                echoLogFunc("Run forward.");
                                 break;
                             case 0x02:
                                 setRunBackward();
                                 byteToWrite = runBackward.serializedStream;
+//                                echoLogFunc("Run backward.");
                                 break;
                             case 0x03:
                                 setTurnLeft();
                                 byteToWrite = turnLeft.serializedStream;
+//                                echoLogFunc("Turn left.");
                                 break;
                             case 0x04:
                                 setTurnRight();
                                 byteToWrite = turnRight.serializedStream;
+//                                echoLogFunc("Turn right.");
                                 break;
                         }
 
@@ -204,7 +208,8 @@ public class MainActivity extends AppCompatActivity {
         speed = 0;
         this.runForward.index = index;
         this.runForward.type = 0x0001;
-        this.runForward.key = 0x0070;
+//        this.runForward.key = 0x0070;
+        this.runForward.key = 0x0100;
         this.runForward.val = speed;
         this.runForward.serialization();
         index++;
@@ -248,6 +253,14 @@ public class MainActivity extends AppCompatActivity {
         index++;
     }
 
+    public void echoLogFunc(String log)
+    {
+        echoLog.append("\n");
+        echoLog.append("#" + logCount + " ");
+        echoLog.append(log);
+        logCount++;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -286,8 +299,9 @@ public class MainActivity extends AppCompatActivity {
 
                             try{
                                 if(isConnected && socket.isConnected()){
-                                    Log.i("", "Close Connection");
-                                    System.out.println("Close Connection");
+//                                    Log.i("", "Close Connection.");
+                                    System.out.println("Close Connection.");
+//                                    echoLogFunc("Close Connection.");
                                     speed = 0;
                                     socket.close();
                                 }
@@ -313,7 +327,10 @@ public class MainActivity extends AppCompatActivity {
 //             return false;
 
         }else if(id == R.id.action_about){
-
+            new AlertDialog.Builder(this)
+                    .setTitle("------- About -------")
+                    .setMessage("Thanks for using! This APP is developed and maintained by Hongfeng Xie (xiehongfeng100@hotmail.com).")
+                    .show();
         }
 
         return super.onOptionsItemSelected(item);

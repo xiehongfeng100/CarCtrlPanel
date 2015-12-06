@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Car Control Panel</string>
     <string name="action_settings">Settings</string>
-    <string name="edit_text">Text</string>
+    <string name="edit_log">Log</string>
 
     <!-- Button to control the car-->
     <string name="forward_button">Forward</string>

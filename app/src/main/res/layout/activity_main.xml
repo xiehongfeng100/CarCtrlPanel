@@ -26,11 +26,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="60dp">
 
-        <!--<EditText android:id="@+id/edit_message"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:hint="@string/edit_text"/>-->
-
         <Button android:id="@+id/runforward"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -59,6 +54,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="150dp"
         android:text="@string/stop_button" />
+
+    <EditText android:id="@+id/echo_log"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="250dp"
+        android:hint="@string/edit_log"/>
+
 
     <!--<ImageView-->
         <!--android:layout_width="80dp"-->
