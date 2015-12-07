@@ -10,9 +10,21 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_about"
+        android:id="@+id/action_reset"
         android:orderInCategory="150"
+        android:title="Reset"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_about"
+        android:orderInCategory="200"
         android:title="About"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_quit"
+        android:orderInCategory="250"
+        android:title="Quit"
         app:showAsAction="never"/>
 
 </menu>

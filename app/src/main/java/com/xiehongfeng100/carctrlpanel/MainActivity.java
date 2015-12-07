@@ -1,7 +1,9 @@
 package com.xiehongfeng100.carctrlpanel;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -10,9 +12,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,9 +30,13 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Information in Setting
+    // Save information in Setting
+    private final String  PREFERENCES_NAME = "settinginfo";
+//    private SharedPreferences preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
     // Connectivity
-    private static String SERVER_IP = "10.0.126.117";
-    private static int SERVER_PORT = 8888;
+    private static String Client_IP = "127.0.0.1";
+    private static int Client_Port = 8888;
     private static InetAddress serAddr = null;
     private Socket socket = null;
     private Boolean isConnected = false;
@@ -46,37 +54,48 @@ public class MainActivity extends AppCompatActivity {
     private static CarCtrlDataStruct runStop;
 
     // Buttons to control the car
-    private static Button runForwardBtn = null;
-    private static Button runBackwardBtn = null;
-    private static Button turnLeftBtn = null;
-    private static Button turnRightBtn = null;
-    private static Button runStopBtn = null;
+    private static ImageView imageRunStop = null;
+    private static ImageView imageRunForward = null;
+    private static ImageView imageRunBackward = null;
+    private static ImageView imageTurnLeft = null;
+    private static ImageView imageTurnRight = null;
 
     // Operation type
     private static byte operType = 0;
-    final int OPER_RUNSTOP = 0;
-    final int OPER_RUNFORWARD = 1;
-    final int OPER_RUNBACKWARD = 2;
-    final int OPER_TURNLEFT = 3;
-    final int OPER_TURNRIGHT = 4;
+    private static final int OPER_RUNSTOP = 0;
+    private static final int OPER_RUNFORWARD = 1;
+    private static final int OPER_RUNBACKWARD = 2;
+    private static final int OPER_TURNLEFT = 3;
+    private static final int OPER_TURNRIGHT = 4;
 
     // Echo log
     private static TextView echoLog = null;
+    private static ScrollView scrollView = null;
     private static int logCount = 0;
     // Log type
-    final int logIDBase = 0;
-    final int LOG_REMIND_CONNECT = logIDBase + 0;
-    final int LOG_CONNECTION_SUCCESS = logIDBase + 1;
-    final int LOG_CONNECTION_FAILED = logIDBase + 2;
-    final int LOG_CONNECTION_CLOSED = logIDBase + 3;
-    final int LOG_CONNECTION_CLOSURE_FAILED = logIDBase + 4;
-    final int LOG_RUNSTOP = logIDBase + 5;
-    final int LOG_RUNFORWARD = logIDBase + 6;
-    final int LOG_RUNBACKWARD = logIDBase + 7;
-    final int LOG_TURNLEFT = logIDBase + 8;
-    final int LOG_TURNRIGHT = logIDBase + 9;
-    final int LOG_ACTION_SETTINGS = logIDBase + 10;
-    final int LOG_ACTION_ABOUT = logIDBase + 11;
+    private final int logIDBase = 0;
+    private final int LOG_REMIND_CONNECT = logIDBase + 0;
+    private final int LOG_CONNECTION_SUCCESS = logIDBase + 1;
+    private final int LOG_CONNECTION_FAILED = logIDBase + 2;
+    private final int LOG_CONNECTION_CLOSED = logIDBase + 3;
+    private final int LOG_CONNECTION_CLOSURE_FAILED = logIDBase + 4;
+    private final int LOG_SETTING_INCORRECT = logIDBase + 5;
+//    private final int LOG_SINGLE_CLICK_INVALID = logIDBase + 6;
+    private final int LOG_RUNSTOP = logIDBase + 7;
+    private final int LOG_RUNFORWARD = logIDBase + 8;
+    private final int LOG_RUNBACKWARD = logIDBase + 9;
+    private final int LOG_TURNLEFT = logIDBase + 10;
+    private final int LOG_TURNRIGHT = logIDBase + 11;
+    private final int LOG_ACTION_EDIT_SETTING = logIDBase + 12;
+    private final int LOG_ACTION_SETTING_IS_SET = logIDBase + 13;
+    private final int LOG_ACTION_SETTING_IS_CANCELED = logIDBase + 14;
+    private final int LOG_ACTION_RESET = logIDBase + 15;
+    private final int LOG_ACTION_ABOUT = logIDBase + 16;
+    private final int LOG_ACTION_QUIT = logIDBase + 17;
+
+    // Handle double click event
+    private static final long DOUBLE_PRESS_INTERVAL = 250; // in millis
+    private static long lastPresstime = System.currentTimeMillis();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,25 +104,52 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        runStopBtn = (Button) findViewById(R.id.runstop);
-        runForwardBtn = (Button) findViewById(R.id.runforward);
-        runBackwardBtn= (Button) findViewById(R.id.runbackward);
-        turnLeftBtn = (Button) findViewById(R.id.turnleft);
-        turnRightBtn = (Button) findViewById(R.id.turnright);
+        imageRunStop = (ImageView) findViewById(R.id.image_runstop);
+        imageRunForward = (ImageView) findViewById(R.id.image_runforward);
+        imageRunBackward = (ImageView) findViewById(R.id.image_runbackward);
+        imageTurnLeft = (ImageView) findViewById(R.id.image_turnleft);
+        imageTurnRight = (ImageView) findViewById(R.id.image_turnright);
 
         echoLog = (TextView) findViewById(R.id.echo_log);
-        echoLog.append("--------- LogDog ---------");
+        scrollView = (ScrollView) findViewById(R.id.echo_log_scrollview);
+        findFocusForEchoLogEditText();
+        echoLog.append("Starting to log...\n");
+//        echoLog.append("Important Instructions:\n" +
+//                "1. Edit Setting to set information of your client.\n" +
+//                "2. Double click on the 'S' button to start an connection.\n" +
+//                "3. Double click on it when you want the car to stop.\n" +
+//                "4. Long press it to close the connection and double click to create a new connection.\n");
 
-        runStopBtn.setOnClickListener(new View.OnClickListener() {
 
+        imageRunStop.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View view) {
-                operType = OPER_RUNSTOP;
-                new Thread(new ClientThread()).start();
+            public boolean onLongClick(View v) {
+                new Thread(new CloseConnectionThread()).start();
+                return false;
             }
         });
 
-        runForwardBtn.setOnClickListener(new View.OnClickListener() {
+        imageRunStop.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+
+                // Handl double click
+                long curPressTime = System.currentTimeMillis();
+                if (curPressTime - lastPresstime < DOUBLE_PRESS_INTERVAL) {
+                    operType = OPER_RUNSTOP;
+                    new Thread(new ClientThread()).start();
+                }
+//                else if(!isConnected){
+//                    asynMsgSend(LOG_SINGLE_CLICK_INVALID);
+//                }
+                lastPresstime = curPressTime;
+
+            }
+
+        });
+
+        imageRunForward.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
@@ -112,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        runBackwardBtn.setOnClickListener(new View.OnClickListener() {
+        imageRunBackward.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
@@ -121,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        turnLeftBtn.setOnClickListener(new View.OnClickListener() {
+        imageTurnLeft.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
@@ -130,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        turnRightBtn.setOnClickListener(new View.OnClickListener() {
+        imageTurnRight.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
@@ -140,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
 
     class ClientThread implements Runnable {
 
@@ -158,8 +205,8 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case OPER_RUNSTOP:
                         try{
-                            serAddr = InetAddress.getByName(SERVER_IP);
-                            socket = new Socket(serAddr, SERVER_PORT);
+                            serAddr = InetAddress.getByName(Client_IP);
+                            socket = new Socket(serAddr, Client_Port);
                             if (socket.isConnected()) {
                                 asynMsgSend(LOG_CONNECTION_SUCCESS);
                                 isConnected = true;
@@ -177,6 +224,11 @@ public class MainActivity extends AppCompatActivity {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+
+                        if(!isConnected){
+                            asynMsgSend(LOG_SETTING_INCORRECT);
+                        }
+
                         break;
                 }
 
@@ -227,6 +279,38 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            // Set focus at every thread
+//            findFocusForEchoLogEditText();
+        }
+
+    }
+
+    class CloseConnectionThread implements Runnable{
+
+        @Override
+        public void run() {
+
+            if(isConnected){
+                try{
+                    if(socket.isConnected()){
+                        speed = 0;
+                        index = 0;
+                        socket.close();
+                        asynMsgSend(LOG_CONNECTION_CLOSED);
+                    }
+                }catch (IOException e){
+                    e.printStackTrace();
+                    asynMsgSend(LOG_CONNECTION_CLOSURE_FAILED);
+                }
+
+                // Reset connect state
+                isConnected = false;
+            }else {
+                // nothing to do
+            }
+
+            // Set focus at every thread
+//            findFocusForEchoLogEditText();
         }
 
     }
@@ -293,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
             switch (log.what) {
                 case LOG_REMIND_CONNECT:
                     echoLogFunc("Please connect to client first.");
-                    Toast.makeText(getApplicationContext(), "Please connect to client first.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Please connect to client first .", Toast.LENGTH_SHORT).show();
                     break;
                 case LOG_CONNECTION_SUCCESS:
                     echoLogFunc("New Connection Success.");
@@ -306,6 +390,12 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case LOG_CONNECTION_CLOSURE_FAILED:
                     echoLogFunc("Old Connection Closure Failed.");
+                    break;
+//                case LOG_SINGLE_CLICK_INVALID:
+//                    echoLogFunc("Single click on 'S' is invalid. Please double click on it.");
+//                    break;
+                case LOG_SETTING_INCORRECT:
+                    echoLogFunc("Setting is incorrect.");
                     break;
                 case LOG_RUNSTOP:
                     echoLogFunc("Stop.");
@@ -322,11 +412,23 @@ public class MainActivity extends AppCompatActivity {
                 case LOG_TURNRIGHT:
                     echoLogFunc("Turn Right.");
                     break;
-                case LOG_ACTION_SETTINGS:
-                    echoLogFunc("Setting.");
+                case LOG_ACTION_EDIT_SETTING:
+                    echoLogFunc("Edit Setting.");
+                    break;
+                case LOG_ACTION_SETTING_IS_SET:
+                    echoLogFunc("Setting is set.");
+                    break;
+                case LOG_ACTION_SETTING_IS_CANCELED:
+                    echoLogFunc("Setting is canceled.");
+                    break;
+                case LOG_ACTION_RESET:
+                    echoLogFunc("Reset.");
                     break;
                 case LOG_ACTION_ABOUT:
                     echoLogFunc("About.");
+                    break;
+                case LOG_ACTION_QUIT:
+                    echoLogFunc("Exit.");
                     break;
                 default:
                     echoLogFunc("Something Wrong.");
@@ -337,20 +439,35 @@ public class MainActivity extends AppCompatActivity {
 
     public void echoLogFunc(String log)
     {
-        SimpleDateFormat sDateFormat = new SimpleDateFormat("hh:mm:ss");
+        // Get system time
+        SimpleDateFormat sDateFormat = new SimpleDateFormat("HH:mm:ss");
         Date curDate = new Date(System.currentTimeMillis());
         String timeStr = sDateFormat.format(curDate);
 
 //        Log.i("", log);
 
         // Display at PC terminal
-        System.out.println(timeStr + "#" + logCount + " " + log);
+        System.out.println(timeStr + "#" + index + " " + log);
 
         // Display at Phone
         echoLog.append("\n");
-        echoLog.append(timeStr + "#" + logCount + " " + log);
+        echoLog.setHighlightColor(1407849);
+        echoLog.append(timeStr + "#" + index + " " + log);
 
         logCount++;
+    }
+
+    public void findFocusForEchoLogEditText()
+    {
+        // With this, the echoLog EditText will not lose focus because of its parent ScrollView
+        // Referred blog: http://blog.csdn.net/zy1409/article/details/40453751
+        echoLog.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                echoLog.getParent().requestDisallowInterceptTouchEvent(true);
+                return false;
+            }
+        });
     }
 
 
@@ -371,7 +488,7 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
 
-            asynMsgSend(LOG_ACTION_SETTINGS);
+            asynMsgSend(LOG_ACTION_EDIT_SETTING);
 
             // get settingdlg.xml view
             LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
@@ -380,21 +497,27 @@ public class MainActivity extends AppCompatActivity {
             alertDialogBuilder.setTitle("Setting Dialog");
             alertDialogBuilder.setView(viewSettingDlg);
 
-            final EditText editIP = (EditText) viewSettingDlg.findViewById(R.id.edit_IP);
-            final EditText editPort = (EditText) viewSettingDlg.findViewById(R.id.edit_Port);
-            final EditText editDelta = (EditText) viewSettingDlg.findViewById(R.id.edit_Delta);
+            final EditText editClientIP = (EditText) viewSettingDlg.findViewById(R.id.edit_IP);
+            final EditText editClientPort = (EditText) viewSettingDlg.findViewById(R.id.edit_Port);
+            final EditText editSpeedDelta = (EditText) viewSettingDlg.findViewById(R.id.edit_Delta);
+
+            final SharedPreferences preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
+            editClientIP.setText(preferences.getString("ClientIP", null));
+            editClientPort.setText(preferences.getString("ClientPort", null));
+            editSpeedDelta.setText(preferences.getString("SpeedDelta", null));
 
             // setup a dialog window
             alertDialogBuilder.setCancelable(false)
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            SERVER_IP = editIP.getText().toString();
-                            SERVER_PORT = Integer.parseInt(editPort.getText().toString());
-                            speedDelta = Integer.parseInt(editDelta.getText().toString());
+                            Client_IP = editClientIP.getText().toString();
+                            Client_Port = Integer.parseInt(editClientPort.getText().toString());
+                            speedDelta = Integer.parseInt(editSpeedDelta.getText().toString());
 
                             try{
                                 if(isConnected && socket.isConnected()){
                                     speed = 0;
+                                    index = 0;
                                     socket.close();
                                     asynMsgSend(LOG_CONNECTION_CLOSED);
                                 }
@@ -403,15 +526,27 @@ public class MainActivity extends AppCompatActivity {
                                 asynMsgSend(LOG_CONNECTION_CLOSURE_FAILED);
                             }
 
-                            // Create a new socket
+                            // Setting is set
+                            asynMsgSend(LOG_ACTION_SETTING_IS_SET);
+
+                            // Reset connect state
                             isConnected = false;
-//                            new Thread(new ClientThread()).start();
+
+                            // Save information in setting
+//                            SharedPreferences preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = preferences.edit();
+                            editor.putString("ClientIP", editClientIP.getText().toString());
+                            editor.putString("ClientPort", editClientPort.getText().toString());
+                            editor.putString("SpeedDelta", editSpeedDelta.getText().toString());
+                            editor.commit();
 
                         }
                     })
                     .setNegativeButton("Cancel",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
+                                    // Setting is unset
+                                    asynMsgSend(LOG_ACTION_SETTING_IS_CANCELED);
                                     dialog.cancel();
                                 }
                             });
@@ -422,14 +557,31 @@ public class MainActivity extends AppCompatActivity {
 
 //             return false;
 
-        }else if(id == R.id.action_about){
+        }else if(id == R.id.action_reset) {
+
+            asynMsgSend(LOG_ACTION_RESET);
+
+            speed = 0;
+            index = 0;
+            new Thread(new CloseConnectionThread()).start();
+
+        }else if(id == R.id.action_about) {
 
             asynMsgSend(LOG_ACTION_ABOUT);
 
-            new AlertDialog.Builder(this)
-                    .setTitle("------- About -------")
-                    .setMessage("Thanks for using! This APP is developed and maintained by Hongfeng Xie (xiehongfeng100@hotmail.com).")
-                    .show();
+            LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
+            View viewAboutDlg = layoutInflater.inflate(R.layout.aboutdlg, null);
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+            alertDialogBuilder.setView(viewAboutDlg);
+            alertDialogBuilder.setTitle("About");
+            AlertDialog alert = alertDialogBuilder.create();
+            alert.show();
+
+        }else if(id == R.id.action_quit){
+
+            asynMsgSend(LOG_ACTION_QUIT);
+
+            System.exit(0);
         }
 
         return super.onOptionsItemSelected(item);

@@ -8,7 +8,7 @@ public class CarCtrlDataStruct {
     public static short type;
     public static short key;
     public static int val;
-    public static byte buf[] = new byte[28];
+    public static byte buf[] = new byte[756];
 
     public CarCtrlDataStruct(){
         for(int i = 0; i < 28; i++) {
@@ -16,14 +16,14 @@ public class CarCtrlDataStruct {
         }
     }
 
-    public static byte serializedStream[] = new byte[40];
+    public static byte serializedStream[] = new byte[768];
     public static void serialization()
     {
         intToBytes(index, serializedStream, 0);
         shortToBytes(type, serializedStream, 4);
         shortToBytes(key, serializedStream, 6);
         intToBytes(val, serializedStream, 8);
-        for(int i = 0; i < 28; i++) {
+        for(int i = 0; i < 756; i++) {
             serializedStream[i + 12] = buf[i];
         }
     }

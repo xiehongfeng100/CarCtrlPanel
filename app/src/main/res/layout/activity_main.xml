@@ -16,76 +16,88 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            android:background="@color/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
     </android.support.design.widget.AppBarLayout>
 
+
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp">
+        android:layout_marginTop="70dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
 
-        <Button android:id="@+id/runforward"
+        <ImageView
+            android:id="@+id/image_runforward"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/runforward" />
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/forward_button" />
+            android:orientation="horizontal">
 
-        <Button android:id="@+id/runbackward"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/backward_button" />
+            <ImageView
+                android:id="@+id/image_turnleft"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/turnleft"/>
 
-        <Button android:id="@+id/turnleft"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/left_button" />
+            <ImageView
+                android:id="@+id/image_runstop"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/runstop"/>
 
-        <Button android:id="@+id/turnright"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/right_button" />
+            <ImageView
+                android:id="@+id/image_turnright"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/turnright"/>
 
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/image_runbackward"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/runbackward"/>
 
     </LinearLayout>
 
-    <Button android:id="@+id/runstop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"
-        android:text="@string/stop_button" />
-
-    <EditText android:id="@+id/echo_log"
+    <EditText
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="250dp"
-        android:hint="@string/edit_log"/>
+        android:layout_marginTop="330dp"
+        android:background="@null"
+        android:gravity="center_horizontal"
+        android:editable="false"
+        android:text="@string/log_title"/>
+
+    <ScrollView
+        android:id="@+id/echo_log_scrollview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="360dp"
+        android:fillViewport="true"
+        android:scrollbarStyle="outsideOverlay">
+
+        <EditText android:id="@+id/echo_log"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scrollbars="vertical"
+            android:scrollbarStyle="insideOverlay"
+            android:background="@null"
+            android:editable="false"
+            android:hint="@string/edit_log"/>
+
+    </ScrollView>
 
 
-    <!--<ImageView-->
-        <!--android:layout_width="80dp"-->
-        <!--android:layout_height="80dp"-->
-        <!--android:layout_marginTop="120dp"-->
-        <!--android:layout_marginLeft="100dp"-->
-        <!--android:src="@drawable/up"-->
-        <!--android:onClick="stop"/>-->
-
-    <!--<ImageView-->
-        <!--android:layout_width="80dp"-->
-        <!--android:layout_height="80dp"-->
-        <!--android:layout_marginTop="200dp"-->
-        <!--android:layout_marginLeft="100dp"-->
-        <!--android:src="@drawable/stop"-->
-        <!--android:onClick="stop"/>-->
-
-    <!--<include layout="@layout/content_main" />-->
-
-    <!--<android.support.design.widget.FloatingActionButton-->
-        <!--android:id="@+id/fab"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_gravity="bottom|end"-->
-        <!--android:layout_margin="@dimen/fab_margin"-->
-        <!--android:src="@android:drawable/ic_dialog_email" />-->
 
 </android.support.design.widget.CoordinatorLayout>
