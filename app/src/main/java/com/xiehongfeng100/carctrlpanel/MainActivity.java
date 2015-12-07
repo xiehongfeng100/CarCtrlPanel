@@ -3,6 +3,8 @@ package com.xiehongfeng100.carctrlpanel;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -12,12 +14,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,16 +53,30 @@ public class MainActivity extends AppCompatActivity {
     private static Button runStopBtn = null;
 
     // Operation type
-    // 00: stop
-    // 01: forward
-    // 02: backward
-    // 03: turn left
-    // 04: turn right
-    private static byte operType = 0x00;
+    private static byte operType = 0;
+    final int OPER_RUNSTOP = 0;
+    final int OPER_RUNFORWARD = 1;
+    final int OPER_RUNBACKWARD = 2;
+    final int OPER_TURNLEFT = 3;
+    final int OPER_TURNRIGHT = 4;
 
     // Echo log
     private static TextView echoLog = null;
     private static int logCount = 0;
+    // Log type
+    final int logIDBase = 0;
+    final int LOG_REMIND_CONNECT = logIDBase + 0;
+    final int LOG_CONNECTION_SUCCESS = logIDBase + 1;
+    final int LOG_CONNECTION_FAILED = logIDBase + 2;
+    final int LOG_CONNECTION_CLOSED = logIDBase + 3;
+    final int LOG_CONNECTION_CLOSURE_FAILED = logIDBase + 4;
+    final int LOG_RUNSTOP = logIDBase + 5;
+    final int LOG_RUNFORWARD = logIDBase + 6;
+    final int LOG_RUNBACKWARD = logIDBase + 7;
+    final int LOG_TURNLEFT = logIDBase + 8;
+    final int LOG_TURNRIGHT = logIDBase + 9;
+    final int LOG_ACTION_SETTINGS = logIDBase + 10;
+    final int LOG_ACTION_ABOUT = logIDBase + 11;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,14 +92,14 @@ public class MainActivity extends AppCompatActivity {
         turnRightBtn = (Button) findViewById(R.id.turnright);
 
         echoLog = (TextView) findViewById(R.id.echo_log);
-        echoLog.append("------ LogDog ------");
+        echoLog.append("--------- LogDog ---------");
 
         runStopBtn.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                operType = 0x00;
-                new Thread(new ClientThread()).start(); //Create a new Thread
+                operType = OPER_RUNSTOP;
+                new Thread(new ClientThread()).start();
             }
         });
 
@@ -88,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
-                operType = 0x01;
+                operType = OPER_RUNFORWARD;
                 new Thread(new ClientThread()).start();
             }
         });
@@ -97,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
-                operType = 0x02;
+                operType = OPER_RUNBACKWARD;
                 new Thread(new ClientThread()).start();
             }
         });
@@ -106,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
-                operType = 0x03;
+                operType = OPER_TURNLEFT;
                 new Thread(new ClientThread()).start();
             }
         });
@@ -115,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
-                operType = 0x04;
+                operType = OPER_TURNRIGHT;
                 new Thread(new ClientThread()).start();
             }
         });
@@ -129,30 +148,38 @@ public class MainActivity extends AppCompatActivity {
 
             if (!isConnected)
             {
-                try{
-                    serAddr = InetAddress.getByName(SERVER_IP);
-                    socket = new Socket(serAddr, SERVER_PORT);
-                    if (socket.isConnected()) {
-//                        Log.i("", "Connection Established.");
-                        System.out.println("Connection Established.");
-//                        echoLogFunc("Connection Established.");
-                        isConnected = true;
+                switch (operType)
+                {
+                    case OPER_RUNFORWARD:
+                    case OPER_RUNBACKWARD:
+                    case OPER_TURNLEFT:
+                    case OPER_TURNRIGHT:
+                        asynMsgSend(LOG_REMIND_CONNECT);
+                        break;
+                    case OPER_RUNSTOP:
+                        try{
+                            serAddr = InetAddress.getByName(SERVER_IP);
+                            socket = new Socket(serAddr, SERVER_PORT);
+                            if (socket.isConnected()) {
+                                asynMsgSend(LOG_CONNECTION_SUCCESS);
+                                isConnected = true;
 
-                        DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
-                        dOut.writeBytes("control");
-                        dOut.flush();
+                                DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+                                dOut.writeBytes("control");
+                                dOut.flush();
 
-                    } else {
-//                        Log.i("", "Connection Failed!!!");
-                        System.out.println("Connection Failed!!!");
-//                        echoLogFunc("Connection Faild!!!");
-                        isConnected = false;
-                    }
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                            } else {
+                                asynMsgSend(LOG_CONNECTION_FAILED);
+                                isConnected = false;
+                            }
+                        } catch (UnknownHostException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        break;
                 }
+
             }
 
             else {
@@ -163,30 +190,30 @@ public class MainActivity extends AppCompatActivity {
                         byte[] byteToWrite = null;
                         switch (operType)
                         {
-                            case 0x00:
+                            case OPER_RUNSTOP:
                                 setRunStop();
                                 byteToWrite = runStop.serializedStream;
-//                                echoLogFunc("Stop.");
+                                asynMsgSend(LOG_RUNSTOP);
                                 break;
-                            case 0x01:
+                            case OPER_RUNFORWARD:
                                 setRunForward();
                                 byteToWrite = runForward.serializedStream;
-//                                echoLogFunc("Run forward.");
+                                asynMsgSend(LOG_RUNFORWARD);
                                 break;
-                            case 0x02:
+                            case OPER_RUNBACKWARD:
                                 setRunBackward();
                                 byteToWrite = runBackward.serializedStream;
-//                                echoLogFunc("Run backward.");
+                                asynMsgSend(LOG_RUNBACKWARD);
                                 break;
-                            case 0x03:
+                            case OPER_TURNLEFT:
                                 setTurnLeft();
                                 byteToWrite = turnLeft.serializedStream;
-//                                echoLogFunc("Turn left.");
+                                asynMsgSend(LOG_TURNLEFT);
                                 break;
-                            case 0x04:
+                            case OPER_TURNRIGHT:
                                 setTurnRight();
                                 byteToWrite = turnRight.serializedStream;
-//                                echoLogFunc("Turn right.");
+                                asynMsgSend(LOG_TURNRIGHT);
                                 break;
                         }
 
@@ -253,13 +280,79 @@ public class MainActivity extends AppCompatActivity {
         index++;
     }
 
+    // Handle log
+    public void asynMsgSend(int logID)
+    {
+        Message log = new Message();
+        log.what = logID;
+        handler.sendMessage(log);
+    }
+
+    private Handler handler = new Handler() {
+        public void handleMessage(Message log) {
+            switch (log.what) {
+                case LOG_REMIND_CONNECT:
+                    echoLogFunc("Please connect to client first.");
+                    Toast.makeText(getApplicationContext(), "Please connect to client first.", Toast.LENGTH_SHORT).show();
+                    break;
+                case LOG_CONNECTION_SUCCESS:
+                    echoLogFunc("New Connection Success.");
+                    break;
+                case LOG_CONNECTION_FAILED:
+                    echoLogFunc("New Connection Failed.");
+                    break;
+                case LOG_CONNECTION_CLOSED:
+                    echoLogFunc("Old Connection Closed.");
+                    break;
+                case LOG_CONNECTION_CLOSURE_FAILED:
+                    echoLogFunc("Old Connection Closure Failed.");
+                    break;
+                case LOG_RUNSTOP:
+                    echoLogFunc("Stop.");
+                    break;
+                case LOG_RUNFORWARD:
+                    echoLogFunc("Run Forward.");
+                    break;
+                case LOG_RUNBACKWARD:
+                    echoLogFunc("Run Backward.");
+                    break;
+                case LOG_TURNLEFT:
+                    echoLogFunc("Turn Left.");
+                    break;
+                case LOG_TURNRIGHT:
+                    echoLogFunc("Turn Right.");
+                    break;
+                case LOG_ACTION_SETTINGS:
+                    echoLogFunc("Setting.");
+                    break;
+                case LOG_ACTION_ABOUT:
+                    echoLogFunc("About.");
+                    break;
+                default:
+                    echoLogFunc("Something Wrong.");
+                    break;
+            }
+        }
+    };
+
     public void echoLogFunc(String log)
     {
+        SimpleDateFormat sDateFormat = new SimpleDateFormat("hh:mm:ss");
+        Date curDate = new Date(System.currentTimeMillis());
+        String timeStr = sDateFormat.format(curDate);
+
+//        Log.i("", log);
+
+        // Display at PC terminal
+        System.out.println(timeStr + "#" + logCount + " " + log);
+
+        // Display at Phone
         echoLog.append("\n");
-        echoLog.append("#" + logCount + " ");
-        echoLog.append(log);
+        echoLog.append(timeStr + "#" + logCount + " " + log);
+
         logCount++;
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -277,6 +370,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+
+            asynMsgSend(LOG_ACTION_SETTINGS);
 
             // get settingdlg.xml view
             LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
@@ -299,17 +394,18 @@ public class MainActivity extends AppCompatActivity {
 
                             try{
                                 if(isConnected && socket.isConnected()){
-//                                    Log.i("", "Close Connection.");
-                                    System.out.println("Close Connection.");
-//                                    echoLogFunc("Close Connection.");
                                     speed = 0;
                                     socket.close();
+                                    asynMsgSend(LOG_CONNECTION_CLOSED);
                                 }
                             }catch (IOException e){
                                 e.printStackTrace();
+                                asynMsgSend(LOG_CONNECTION_CLOSURE_FAILED);
                             }
 
+                            // Create a new socket
                             isConnected = false;
+//                            new Thread(new ClientThread()).start();
 
                         }
                     })
@@ -327,6 +423,9 @@ public class MainActivity extends AppCompatActivity {
 //             return false;
 
         }else if(id == R.id.action_about){
+
+            asynMsgSend(LOG_ACTION_ABOUT);
+
             new AlertDialog.Builder(this)
                     .setTitle("------- About -------")
                     .setMessage("Thanks for using! This APP is developed and maintained by Hongfeng Xie (xiehongfeng100@hotmail.com).")

@@ -4,6 +4,7 @@
     <string name="edit_log">Log</string>
 
     <!-- Button to control the car-->
+    <string name="connect_button">Connect</string>
     <string name="forward_button">Forward</string>
     <string name="backward_button">Backward</string>
     <string name="left_button">Left</string>
