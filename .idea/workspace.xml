@@ -21,7 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="b7456d07-f7d2-48ca-8a68-276d343d899b" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/xiehongfeng100/carctrlpanel/MainActivity.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/xiehongfeng100/carctrlpanel/MainActivity.java" />
     </list>
     <ignored path="CarCtrlPanel.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -65,8 +64,8 @@
       <file leaf-file-name="MainActivity.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/xiehongfeng100/carctrlpanel/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="4.4384236">
-              <caret line="597" column="82" selection-start-line="597" selection-start-column="82" selection-end-line="597" selection-end-column="82" />
+            <state vertical-scroll-proportion="0.08374384">
+              <caret line="433" column="26" selection-start-line="433" selection-start-column="26" selection-end-line="433" selection-end-column="26" />
               <folding />
             </state>
           </provider>
@@ -2079,6 +2078,13 @@
       <option name="number" value="Default" />
       <updated>1449334985898</updated>
     </task>
+    <task id="LOCAL-00001" summary="Alter log message for LOG_ACTION_SETTING_INPUTS_IS_INVALID.">
+      <created>1449567360709</created>
+      <option name="number" value="00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1449567360709</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TodoView">
@@ -2136,6 +2142,10 @@
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Alter log message for LOG_ACTION_SETTING_INPUTS_IS_INVALID." />
+    <option name="LAST_COMMIT_MESSAGE" value="Alter log message for LOG_ACTION_SETTING_INPUTS_IS_INVALID." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -2601,8 +2611,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/xiehongfeng100/carctrlpanel/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="4.4384236">
-          <caret line="597" column="82" selection-start-line="597" selection-start-column="82" selection-end-line="597" selection-end-column="82" />
+        <state vertical-scroll-proportion="0.08374384">
+          <caret line="433" column="26" selection-start-line="433" selection-start-column="26" selection-end-line="433" selection-end-column="26" />
           <folding />
         </state>
       </provider>
