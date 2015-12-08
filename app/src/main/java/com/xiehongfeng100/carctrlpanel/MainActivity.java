@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
     private final int LOG_ACTION_SETTING_INPUTS_IS_INVALID = logIDBase + 15;
     private final int LOG_ACTION_HELP = logIDBase + 16;
     private final int LOG_ACTION_QUIT = logIDBase + 17;
+    private final int LOG_CONNECTION_GOING_ON = logIDBase + 18;
 
     // Handle double click event
     private static final long DOUBLE_PRESS_INTERVAL = 250; // in millis
@@ -410,6 +411,9 @@ public class MainActivity extends AppCompatActivity {
                 case LOG_CONNECTION_CLOSURE_FAILED:
                     echoLogFunc("Old Connection Closure Failed.");
                     break;
+                case LOG_CONNECTION_GOING_ON:
+                    echoLogFunc(".");
+                    break;
                 case LOG_SETTING_INCORRECT:
                     echoLogFunc("Setting is incorrect.");
                     break;
@@ -438,8 +442,8 @@ public class MainActivity extends AppCompatActivity {
                     echoLogFunc("Setting is canceled.");
                     break;
                 case LOG_ACTION_SETTING_INPUTS_IS_INVALID:
-                    echoLogFunc("Setting inputs is invalid.");
-                    Toast.makeText(getApplicationContext(), "Setting inputs is invalid.", Toast.LENGTH_SHORT).show();
+                    echoLogFunc("Setting inputs is invalid. Please confirm the value of client IP, Port (0~65535) and Speed Delta (0~200).");
+                    Toast.makeText(getApplicationContext(), "Setting inputs is invalid. Please confirm the value of client IP, Port (0~65535) and Speed Delta (0~200).", Toast.LENGTH_SHORT).show();
                     break;
                 case LOG_ACTION_HELP:
                     echoLogFunc("Help.");
