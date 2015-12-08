@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
     private final int LOG_ACTION_SETTING_IS_SET = logIDBase + 13;
     private final int LOG_ACTION_SETTING_IS_CANCELED = logIDBase + 14;
     private final int LOG_ACTION_RESET = logIDBase + 15;
-    private final int LOG_ACTION_ABOUT = logIDBase + 16;
+    private final int LOG_ACTION_HELP = logIDBase + 16;
     private final int LOG_ACTION_QUIT = logIDBase + 17;
 
     // Handle double click event
@@ -424,7 +424,7 @@ public class MainActivity extends AppCompatActivity {
                 case LOG_ACTION_RESET:
                     echoLogFunc("Reset.");
                     break;
-                case LOG_ACTION_ABOUT:
+                case LOG_ACTION_HELP:
                     echoLogFunc("About.");
                     break;
                 case LOG_ACTION_QUIT:
@@ -565,15 +565,15 @@ public class MainActivity extends AppCompatActivity {
             index = 0;
             new Thread(new CloseConnectionThread()).start();
 
-        }else if(id == R.id.action_about) {
+        }else if(id == R.id.action_help) {
 
-            asynMsgSend(LOG_ACTION_ABOUT);
+            asynMsgSend(LOG_ACTION_HELP);
 
             LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
             View viewAboutDlg = layoutInflater.inflate(R.layout.aboutdlg, null);
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
             alertDialogBuilder.setView(viewAboutDlg);
-            alertDialogBuilder.setTitle("About");
+            alertDialogBuilder.setTitle("Help");
             AlertDialog alert = alertDialogBuilder.create();
             alert.show();
 

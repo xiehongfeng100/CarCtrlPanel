@@ -31,8 +31,8 @@
 
         <ImageView
             android:id="@+id/image_runforward"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_gravity="center_horizontal"
             android:src="@drawable/runforward" />
 
@@ -43,28 +43,28 @@
 
             <ImageView
                 android:id="@+id/image_turnleft"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:src="@drawable/turnleft"/>
 
             <ImageView
                 android:id="@+id/image_runstop"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:src="@drawable/runstop"/>
 
             <ImageView
                 android:id="@+id/image_turnright"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:src="@drawable/turnright"/>
 
         </LinearLayout>
 
         <ImageView
             android:id="@+id/image_runbackward"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_gravity="center_horizontal"
             android:src="@drawable/runbackward"/>
 
@@ -73,7 +73,7 @@
     <EditText
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="330dp"
+        android:layout_marginTop="260dp"
         android:background="@null"
         android:gravity="center_horizontal"
         android:editable="false"
@@ -83,7 +83,7 @@
         android:id="@+id/echo_log_scrollview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_marginTop="360dp"
+        android:layout_marginTop="290dp"
         android:fillViewport="true"
         android:scrollbarStyle="outsideOverlay">
 

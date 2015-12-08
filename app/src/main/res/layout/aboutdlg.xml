@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@null"
-            android:text="By Xie Hongfeng\nPhone: 136-7003-9103\nEmail: xiehongfeng100@hotmail.com"/>
+            android:text="By Xie Hongfeng\nEmail: xiehongfeng100@hotmail.com"/>
 
     </LinearLayout>
 
