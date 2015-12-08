@@ -16,7 +16,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +26,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private Boolean isConnected = false;
 
     // Speed
-    private static int speedDelta = 0;
+    private static int SpeedDelta = 0;
     private static int speed = 0;
 
     // Car control data structure
@@ -70,8 +70,8 @@ public class MainActivity extends AppCompatActivity {
 
     // Echo log
     private static TextView echoLog = null;
-    private static ScrollView scrollView = null;
-    private static int logCount = 0;
+//    private static ScrollView scrollView = null;
+//    private static int logCount = 0;
     // Log type
     private final int logIDBase = 0;
     private final int LOG_REMIND_CONNECT = logIDBase + 0;
@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
     private final int LOG_CONNECTION_CLOSED = logIDBase + 3;
     private final int LOG_CONNECTION_CLOSURE_FAILED = logIDBase + 4;
     private final int LOG_SETTING_INCORRECT = logIDBase + 5;
-//    private final int LOG_SINGLE_CLICK_INVALID = logIDBase + 6;
     private final int LOG_RUNSTOP = logIDBase + 7;
     private final int LOG_RUNFORWARD = logIDBase + 8;
     private final int LOG_RUNBACKWARD = logIDBase + 9;
@@ -89,13 +88,33 @@ public class MainActivity extends AppCompatActivity {
     private final int LOG_ACTION_EDIT_SETTING = logIDBase + 12;
     private final int LOG_ACTION_SETTING_IS_SET = logIDBase + 13;
     private final int LOG_ACTION_SETTING_IS_CANCELED = logIDBase + 14;
-    private final int LOG_ACTION_RESET = logIDBase + 15;
+    private final int LOG_ACTION_SETTING_INPUTS_IS_INVALID = logIDBase + 15;
     private final int LOG_ACTION_HELP = logIDBase + 16;
     private final int LOG_ACTION_QUIT = logIDBase + 17;
 
     // Handle double click event
     private static final long DOUBLE_PRESS_INTERVAL = 250; // in millis
     private static long lastPresstime = System.currentTimeMillis();
+
+    // Verify input if it is IPv4 address or not
+    private static final Pattern IPV4_PATTERN =
+            Pattern.compile(
+                    "^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
+    private static final Pattern PORT_PATTERN =
+            Pattern.compile(
+                    "^6[0-5][0-5][0-3][0-5]|[0-5]\\d{0,4}|[0-9]\\d{0,3}");
+    private static final Pattern SPEED_DELTA_PATTERN =
+            Pattern.compile(
+                    "^200|2[0-9]|[0-1]\\d{0,2}|[0-9]\\d");
+    public static boolean isIPv4Address(final String input) {
+        return IPV4_PATTERN.matcher(input).matches();
+    }
+    public static boolean isPortValid(final String input){
+        return PORT_PATTERN.matcher(input).matches();
+    }
+    public static boolean isSpeedDeltaValid(final String input){
+        return SPEED_DELTA_PATTERN.matcher(input).matches();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
         imageTurnRight = (ImageView) findViewById(R.id.image_turnright);
 
         echoLog = (TextView) findViewById(R.id.echo_log);
-        scrollView = (ScrollView) findViewById(R.id.echo_log_scrollview);
+//        scrollView = (ScrollView) findViewById(R.id.echo_log_scrollview);
         findFocusForEchoLogEditText();
         echoLog.append("Starting to log...\n");
 //        echoLog.append("Important Instructions:\n" +
@@ -327,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setRunForward() {
-        speed += speedDelta;
+        speed += SpeedDelta;
         this.runForward.index = index;
         this.runForward.type = 0x0001;
         this.runForward.key = 0x0100;
@@ -337,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setRunBackward() {
-        speed -= speedDelta;
+        speed -= SpeedDelta;
         this.runForward.index = index;
         this.runForward.type = 0x0001;
         this.runForward.key = 0x0101;
@@ -377,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
             switch (log.what) {
                 case LOG_REMIND_CONNECT:
                     echoLogFunc("Please connect to client first.");
-                    Toast.makeText(getApplicationContext(), "Please connect to client first .", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Please connect to client first.", Toast.LENGTH_SHORT).show();
                     break;
                 case LOG_CONNECTION_SUCCESS:
                     echoLogFunc("New Connection Success.");
@@ -386,14 +405,11 @@ public class MainActivity extends AppCompatActivity {
                     echoLogFunc("New Connection Failed.");
                     break;
                 case LOG_CONNECTION_CLOSED:
-                    echoLogFunc("Old Connection Closed.");
+                    echoLogFunc("Old Connection Closed. Let index = 0 and speed = 0.");
                     break;
                 case LOG_CONNECTION_CLOSURE_FAILED:
                     echoLogFunc("Old Connection Closure Failed.");
                     break;
-//                case LOG_SINGLE_CLICK_INVALID:
-//                    echoLogFunc("Single click on 'S' is invalid. Please double click on it.");
-//                    break;
                 case LOG_SETTING_INCORRECT:
                     echoLogFunc("Setting is incorrect.");
                     break;
@@ -421,11 +437,12 @@ public class MainActivity extends AppCompatActivity {
                 case LOG_ACTION_SETTING_IS_CANCELED:
                     echoLogFunc("Setting is canceled.");
                     break;
-                case LOG_ACTION_RESET:
-                    echoLogFunc("Reset.");
+                case LOG_ACTION_SETTING_INPUTS_IS_INVALID:
+                    echoLogFunc("Setting inputs is invalid.");
+                    Toast.makeText(getApplicationContext(), "Setting inputs is invalid.", Toast.LENGTH_SHORT).show();
                     break;
                 case LOG_ACTION_HELP:
-                    echoLogFunc("About.");
+                    echoLogFunc("Help.");
                     break;
                 case LOG_ACTION_QUIT:
                     echoLogFunc("Exit.");
@@ -454,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
         echoLog.setHighlightColor(1407849);
         echoLog.append(timeStr + "#" + index + " " + log);
 
-        logCount++;
+//        logCount++;
     }
 
     public void findFocusForEchoLogEditText()
@@ -510,35 +527,48 @@ public class MainActivity extends AppCompatActivity {
             alertDialogBuilder.setCancelable(false)
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            Client_IP = editClientIP.getText().toString();
-                            Client_Port = Integer.parseInt(editClientPort.getText().toString());
-                            speedDelta = Integer.parseInt(editSpeedDelta.getText().toString());
 
-                            try{
-                                if(isConnected && socket.isConnected()){
-                                    speed = 0;
-                                    index = 0;
-                                    socket.close();
-                                    asynMsgSend(LOG_CONNECTION_CLOSED);
+                            // Take precaution for invalid inputs
+                            String clientIP = editClientIP.getText().toString();
+                            String clientPort = editClientPort.getText().toString();
+                            String speedDelta = editSpeedDelta.getText().toString();
+
+                            if(clientIP.length() == 0 || clientPort.length() == 0 || speedDelta.length() == 0 ||
+                                    !isIPv4Address(clientIP) || !isPortValid(clientPort) || !isSpeedDeltaValid(speedDelta)){
+                                asynMsgSend(LOG_ACTION_SETTING_INPUTS_IS_INVALID);
+                            }else { // If inputs are all valid
+
+                                Client_IP = editClientIP.getText().toString();
+                                Client_Port = Integer.parseInt(editClientPort.getText().toString());
+                                SpeedDelta = Integer.parseInt(editSpeedDelta.getText().toString());
+
+                                try {
+                                    if (isConnected && socket.isConnected()) {
+                                        speed = 0;
+                                        index = 0;
+                                        socket.close();
+                                        asynMsgSend(LOG_CONNECTION_CLOSED);
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    asynMsgSend(LOG_CONNECTION_CLOSURE_FAILED);
                                 }
-                            }catch (IOException e){
-                                e.printStackTrace();
-                                asynMsgSend(LOG_CONNECTION_CLOSURE_FAILED);
+
+                                // Setting is set
+                                asynMsgSend(LOG_ACTION_SETTING_IS_SET);
+
+                                // Reset connect state
+                                isConnected = false;
+
+                                // Save information in setting
+//                              SharedPreferences preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putString("ClientIP", editClientIP.getText().toString());
+                                editor.putString("ClientPort", editClientPort.getText().toString());
+                                editor.putString("SpeedDelta", editSpeedDelta.getText().toString());
+                                editor.commit();
+
                             }
-
-                            // Setting is set
-                            asynMsgSend(LOG_ACTION_SETTING_IS_SET);
-
-                            // Reset connect state
-                            isConnected = false;
-
-                            // Save information in setting
-//                            SharedPreferences preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
-                            SharedPreferences.Editor editor = preferences.edit();
-                            editor.putString("ClientIP", editClientIP.getText().toString());
-                            editor.putString("ClientPort", editClientPort.getText().toString());
-                            editor.putString("SpeedDelta", editSpeedDelta.getText().toString());
-                            editor.commit();
 
                         }
                     })
@@ -556,14 +586,6 @@ public class MainActivity extends AppCompatActivity {
             alert.show();
 
 //             return false;
-
-        }else if(id == R.id.action_reset) {
-
-            asynMsgSend(LOG_ACTION_RESET);
-
-            speed = 0;
-            index = 0;
-            new Thread(new CloseConnectionThread()).start();
 
         }else if(id == R.id.action_help) {
 

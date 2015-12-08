@@ -10,12 +10,6 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_reset"
-        android:orderInCategory="150"
-        android:title="Reset"
-        app:showAsAction="never"/>
-
-    <item
         android:id="@+id/action_help"
         android:orderInCategory="200"
         android:title="Help"
