@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/help_selector"
+    android:orientation="vertical">
+
+    <!--<TextView-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="fill_parent"-->
+    <!--android:layout_gravity="center_horizontal"-->
+    <!--android:text="About"/>-->
+
+    <!--<EditText-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_gravity="center_horizontal"-->
+    <!--android:background="@null"-->
+    <!--android:editable="false"-->
+    <!--android:text="This application is designed and maintained by Xie Hongfeng. If you find any problems with this application, please feel free to contact me through email xiehongfeng100@hotmail.com."/>-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center_horizontal">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:fontFamily="sans"
+            android:textStyle="bold"
+            android:textSize="20dp"
+            android:textColor="@color/black"
+            android:text="Help"/>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:fontFamily="sans"
+            android:textSize="15dp"
+            android:textColor="@color/black"
+            android:text="Important Instructions:\n 1. Edit Setting to set information of your client.\n 2. Double click on the 'S' button to start an connection.\n 3. Double click on it when you want the car to stop.\n 4. Long press on it to close the connection and double click on it to create a new connection.\n"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:fontFamily="sans"
+            android:textSize="15dp"
+            android:textColor="@color/black"
+            android:text="By Xie Hongfeng\nEmail: xiehongfeng100@hotmail.com"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>

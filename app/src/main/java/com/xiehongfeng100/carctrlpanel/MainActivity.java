@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
         return SPEED_DELTA_PATTERN.matcher(input).matches();
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -515,7 +516,7 @@ public class MainActivity extends AppCompatActivity {
             LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
             View viewSettingDlg = layoutInflater.inflate(R.layout.settingdlg, null);
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
-            alertDialogBuilder.setTitle("Setting Dialog");
+//            alertDialogBuilder.setTitle("Setting Dialog");
             alertDialogBuilder.setView(viewSettingDlg);
 
             final EditText editClientIP = (EditText) viewSettingDlg.findViewById(R.id.edit_IP);
@@ -596,10 +597,10 @@ public class MainActivity extends AppCompatActivity {
             asynMsgSend(LOG_ACTION_HELP);
 
             LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
-            View viewAboutDlg = layoutInflater.inflate(R.layout.aboutdlg, null);
+            View viewAboutDlg = layoutInflater.inflate(R.layout.helpdlg, null);
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
             alertDialogBuilder.setView(viewAboutDlg);
-            alertDialogBuilder.setTitle("Help");
+//            alertDialogBuilder.setTitle("Help");
             AlertDialog alert = alertDialogBuilder.create();
             alert.show();
 
